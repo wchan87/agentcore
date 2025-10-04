@@ -1,0 +1,8 @@
+bedrock-agentcore==0.1.7
+strands-agents==1.10.0
+strands-agents-tools==0.2.9
+strands-agents-builder==0.1.10
+langgraph==0.6.8
+langchain-community==0.3.30
+langchain-aws==0.2.35
+langchain-ollama==0.3.10
