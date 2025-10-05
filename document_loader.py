@@ -1,13 +1,12 @@
 import asyncio
 import boto3
 import json
-
 from langchain_core.embeddings import Embeddings
-from langchain_core.vectorstores import VectorStore
-from langchain_text_splitters import RecursiveJsonSplitter
 from langchain_core.documents import Document
-from langchain_postgres import PGEngine, PGVectorStore
+from langchain_core.vectorstores import VectorStore
 from langchain_ollama import OllamaEmbeddings
+from langchain_postgres import PGEngine, PGVectorStore
+from langchain_text_splitters import RecursiveJsonSplitter
 
 POSTGRES_USER: str = 'langchain'
 POSTGRES_PASSWORD: str = 'langchain'

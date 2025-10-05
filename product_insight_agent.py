@@ -1,6 +1,4 @@
 import asyncio
-
-from langchain.chat_models import init_chat_model
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 from langchain_core.messages import BaseMessage
@@ -11,6 +9,8 @@ from langchain_ollama import OllamaEmbeddings
 from langchain_postgres import PGEngine, PGVectorStore
 from langgraph.constants import START
 from langgraph.graph import StateGraph
+from langgraph.graph.state import CompiledStateGraph
+from langchain.chat_models import init_chat_model
 from typing import Any
 from typing_extensions import List, TypedDict
 
@@ -35,18 +35,7 @@ async def get_vectorstore_async() -> VectorStore:
         embedding_service=embeddings,
     )
 vector_store: VectorStore = asyncio.run(get_vectorstore_async())
-llm = init_chat_model(OLLAMA_MODEL, model_provider="ollama", base_url=OLLAMA_BASE_URL)
-# this code snippet pulls from https://smith.langchain.com/hub/rlm/rag-prompt
-# from langchain import hub
-# prompt: ChatPromptTemplate = hub.pull("rlm/rag-prompt")
-prompt: ChatPromptTemplate = ChatPromptTemplate.from_template(
-    '''
-    You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
-    Question: {question} 
-    Context: {context} 
-    Answer:
-    '''
-)
+llm = init_chat_model(OLLAMA_MODEL, model_provider='ollama', base_url=OLLAMA_BASE_URL)
 
 # Define state for application
 class State(TypedDict):
@@ -56,19 +45,31 @@ class State(TypedDict):
 
 # Define application steps
 def retrieve(state: State) -> dict[str, Any]:
-    retrieved_docs = vector_store.similarity_search(state["question"])
-    return {"context": retrieved_docs}
+    retrieved_docs: List[Document] = vector_store.similarity_search(state['question'])
+    return {'context': retrieved_docs}
 
 def generate(state: State) -> dict[str, Any]:
-    docs_content = "\n\n".join(doc.page_content for doc in state["context"])
-    messages: PromptValue = prompt.invoke({"question": state["question"], "context": docs_content})
+    # this code snippet pulls from https://smith.langchain.com/hub/rlm/rag-prompt
+    # from langchain import hub
+    # prompt: ChatPromptTemplate = hub.pull('rlm/rag-prompt')
+    prompt: ChatPromptTemplate = ChatPromptTemplate.from_template(
+        '''
+        You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
+        Question: {question} 
+        Context: {context} 
+        Answer:
+        '''
+    )
+    docs_content = '\n\n'.join(doc.page_content for doc in state['context'])
+    messages: PromptValue = prompt.invoke({'question': state['question'], 'context': docs_content})
     ai_message: BaseMessage = llm.invoke(messages)
-    return {"answer": ai_message.content}
+    return {'answer': ai_message.content}
 
 # Compile application and test
-graph_builder = StateGraph(State).add_sequence([retrieve, generate])
-graph_builder.add_edge(START, "retrieve")
-graph = graph_builder.compile()
+graph_builder: StateGraph = StateGraph(State)
+graph_builder.add_sequence([retrieve, generate])
+graph_builder.add_edge(START, 'retrieve')
+graph: CompiledStateGraph = graph_builder.compile()
 
-response = graph.invoke({"question": "Summarize the product information and customer feedback for Tesla Model Y in English."})
-print(response["answer"])
+response: dict[str, Any] = graph.invoke({'question': 'Summarize the product information and customer feedback for Tesla Model Y in English.'})
+print(response['answer'])

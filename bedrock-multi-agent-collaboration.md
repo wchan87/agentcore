@@ -52,9 +52,36 @@ aws --endpoint-url=http://localhost:9000 s3 cp temp/output-2.json s3://raw/
 aws --endpoint-url=http://localhost:9000 s3 cp temp/output-3.json s3://raw/
 ```
 
+## Tavily
+
+Register with [Tavily Search API](https://app.tavily.com/home) to get `TAVILY_API_KEY` to set as environment variable.
+```bash
+export TAVILY_API_KEY=...
+```
+The JSON response structure for the search function is shared for reference if further improvements are to be made to the application code.
+```json
+{
+  "query": ...,
+  "follow_up_questions": ...,
+  "answer": ...,
+  "images": ...,
+  "results": [
+    {
+      "url": ...,
+      "title": ...,
+      "content": ...,
+      "score": ...,
+      "raw_content": ...
+    }
+  ],
+  "response_time": ...,
+  "request_id": ... 
+}
+```
+
 ## Lab 1 - Product Insight Agent
 
-[Lab 1: Product Insight Agent](https://catalog.us-east-1.prod.workshops.aws/workshops/c68a2fb4-8b25-480f-ab0b-129778f96d4d/en-US/40-hands-on-lab/lab1-single-agent) involves an agent that searches [Amazon Bedrock Knowledge Base](https://docs.aws.amazon.com/en_us/bedrock/latest/userguide/kb-how-data.html) (i.e., [Retrieval-Augmented Generation (RAG)](https://python.langchain.com/docs/tutorials/rag/)) that's populated via [documents uploaded](https://docs.aws.amazon.com/en_us/bedrock/latest/userguide/kb-data-source-customize-ingestion.html) to S3 bucket which is [chunked](https://docs.aws.amazon.com/en_us/bedrock/latest/userguide/kb-data-source-customize-ingestion.html) and converted to embeddings with the steps as follows:
+[Lab 1: Product Insight Agent](https://catalog.us-east-1.prod.workshops.aws/workshops/c68a2fb4-8b25-480f-ab0b-129778f96d4d/en-US/40-hands-on-lab/lab1-single-agent) involves an agent that searches [Amazon Bedrock Knowledge Base](https://docs.aws.amazon.com/en_us/bedrock/latest/userguide/kb-how-data.html) (i.e., [Retrieval-Augmented Generation (RAG)](https://python.langchain.com/docs/tutorials/rag/)) that's populated via [documents uploaded](https://docs.aws.amazon.com/en_us/bedrock/latest/userguide/kb-data-source-customize-ingestion.html) to S3 bucket which is [chunked](https://docs.aws.amazon.com/en_us/bedrock/latest/userguide/kb-data-source-customize-ingestion.html), converted to embeddings and summarized into a report stored back into S3 bucket with the steps as follows:
 * [Step 1: Creating S3 Bucket and Uploading Data](https://catalog.us-east-1.prod.workshops.aws/workshops/c68a2fb4-8b25-480f-ab0b-129778f96d4d/en-US/40-hands-on-lab/lab1-single-agent/step-01-s3-upload)
   * Sample documents to be converted to embeddings
     * [output-1.json](https://static.us-east-1.prod.workshops.aws/public/dbd230e3-b8b3-49a3-9b0e-c717778f99e9/static/lab_product_insight_agent/data/output-1.json)
@@ -94,3 +121,18 @@ python product_insight_agent.py
 ```
 
 Query analysis that's referenced in the [RAG tutorial](https://python.langchain.com/docs/tutorials/rag/#query-analysis) is out of scope but an avenue to explore to allow the model to [rephrase the query](https://python.langchain.com/docs/concepts/retrieval/#query-analysis) for retrieval purposes.
+
+## Lab 2
+
+[Lab 2: Market Analyst Agent](https://catalog.us-east-1.prod.workshops.aws/workshops/c68a2fb4-8b25-480f-ab0b-129778f96d4d/en-US/40-hands-on-lab/lab2-market-agent) involves an agent to interact with external tools (i.e., APIs) and summarized into a report back into S3 bucket based on the steps below:
+1. Extract the core product/trend specified the question
+2. Iterate through 4 specific queries against Tavily regarding the core product/trend
+3. Summarize the search results from the prior step into the standardized format
+4. Persist the standardized format to S3 bucket and return the S3 location
+
+The steps are inferred from the [Instructions for the Agent](https://catalog.us-east-1.prod.workshops.aws/workshops/c68a2fb4-8b25-480f-ab0b-129778f96d4d/en-US/40-hands-on-lab/lab2-market-agent/step-02-agent-check) that was partially provided.
+
+Ensure that `TAVILY_API_KEY` is [set](#tavily) before running the [market_analysis_agent.py](market_analysis_agent.py) script:
+```bash
+python market_analysis_agent.py
+```
