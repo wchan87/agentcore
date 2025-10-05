@@ -8,3 +8,8 @@ langchain-community==0.3.30
 langchain-aws==0.2.35
 langchain-ollama==0.3.10
 mcp>=1.10.0
+langchain-postgres==0.0.15
+langchain-core==0.3.78
+sqlalchemy==2.0.43
+psycopg[binary]==3.2.10
+boto3==1.40.45
