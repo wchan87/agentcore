@@ -38,14 +38,14 @@ s3_client = boto3.client(
 
 # 1. Setup the vector store
 # TODO consider setup outside of the document loader
-async def setup_vectorstore_sync():
+async def setup_vector_store_sync():
     await pg_engine.ainit_vectorstore_table(
         table_name=TABLE_NAME,
         vector_size=VECTOR_SIZE,
         overwrite_existing=True # TODO this drops the table, may need the equivalent of CREATE TABLE ... IF NOT EXISTS
     )
 # TODO is this sync, if not, then should it be setup to wait for the setup just in case of timing issues?
-asyncio.run(setup_vectorstore_sync())
+asyncio.run(setup_vector_store_sync())
 
 # 2. Load the JSONs into list[Document]
 docs: list[Document] = []
@@ -79,13 +79,13 @@ for document in docs:
     all_split_docs.extend(split_docs)
 
 # 4. Setup PGVectorStore to load it with documents
-async def get_vectorstore_async() -> VectorStore:
+async def get_vector_store_async() -> VectorStore:
     embeddings: Embeddings = OllamaEmbeddings(model=OLLAMA_MODEL, base_url=OLLAMA_BASE_URL)
     return await PGVectorStore.create(
         engine=pg_engine,
         table_name=TABLE_NAME,
         embedding_service=embeddings,
     )
+vector_store: VectorStore = asyncio.run(get_vector_store_async())
 # TODO it takes a 10-20 min when running locally so consider chunking the number of documents
-vectorstore: VectorStore = asyncio.run(get_vectorstore_async())
-vectorstore.add_documents(all_split_docs)
+vector_store.add_documents(all_split_docs)

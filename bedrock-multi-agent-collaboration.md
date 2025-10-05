@@ -68,7 +68,7 @@ The local equivalent of the above architecture is
 * use LangChain [PGVectorStore](https://python.langchain.com/docs/integrations/vectorstores/pgvectorstore/) to store the embeddings (i.e., Postgres with [pgvector](https://github.com/pgvector/pgvector) extension is already setup on DockerHub [pgvector/pgvector](https://hub.docker.com/r/pgvector/pgvector))
 * use LangChain [Retriever](https://python.langchain.com/docs/tutorials/retrievers/#retrievers) as part of [application logic](https://python.langchain.com/docs/tutorials/rag/#orchestration) to retrieve the relevant data and generate output based on a specific template to be stored in MinIO
 
-### Lab 1 - Document Loader
+### Lab 1 - Indexing
 
 To store the documents as embeddings, the [document_loader.py](document_loader.py) script should be sufficient
 ```bash
@@ -85,3 +85,12 @@ Some references that were essential for implementing the loader are as follows:
   * [LangChain > How-to guides > How to split JSON data](https://python.langchain.com/docs/how_to/recursive_json_splitter/) - If the content is too large, then it's advisable to split it before storing into a knowledge base for RAG.
 * [LangChain > Integrations > Components > Embedding models > OllamaEmbeddings](https://python.langchain.com/docs/integrations/text_embedding/ollama/)
 * [LangChain > Integrations > Components > Vector stores > PGVectorStore](https://python.langchain.com/docs/integrations/vectorstores/pgvectorstore/)
+
+### Lab 1 - Retrieval and Generation
+
+To query the documents and reason through the content, the [product_insight_agent.py](product_insight_agent.py) script is derived from [LangChain > Tutorials > Build a Retrieval Augmented Generation (RAG) App: Part 1 > Retrieval and Generation](https://python.langchain.com/docs/tutorials/rag/#orchestration) but modified to interact with the documents that were loaded.
+```bash
+python product_insight_agent.py
+```
+
+Query analysis that's referenced in the [RAG tutorial](https://python.langchain.com/docs/tutorials/rag/#query-analysis) is out of scope but an avenue to explore to allow the model to [rephrase the query](https://python.langchain.com/docs/concepts/retrieval/#query-analysis) for retrieval purposes.
