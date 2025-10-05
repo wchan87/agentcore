@@ -120,7 +120,15 @@ To query the documents and reason through the content, the [product_insight_agen
 python product_insight_agent.py
 ```
 
-Query analysis that's referenced in the [RAG tutorial](https://python.langchain.com/docs/tutorials/rag/#query-analysis) is out of scope but an avenue to explore to allow the model to [rephrase the query](https://python.langchain.com/docs/concepts/retrieval/#query-analysis) for retrieval purposes.
+**Note:** Query analysis that's referenced in the [RAG tutorial](https://python.langchain.com/docs/tutorials/rag/#query-analysis) is out of scope but an avenue to explore to allow the model to [rephrase the query](https://python.langchain.com/docs/concepts/retrieval/#query-analysis) for retrieval purposes. A pre-processing step was added in the `extract` function to narrow down the main vehicle in scope for the request. The pre-processing step will be compared to the approach is documented by LangChain in the future.
+
+**Note:** Tutorial shows another approach to retrieve canned prompt that stored in LangSmith under [rlm/rag-prompt](https://smith.langchain.com/hub/rlm/rag-prompt).
+```python
+from langchain import hub
+from langchain_core.prompts import ChatPromptTemplate
+
+prompt: ChatPromptTemplate = hub.pull('rlm/rag-prompt')
+```
 
 ## Lab 2
 
