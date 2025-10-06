@@ -24,9 +24,9 @@ POSTGRES_HOST: str = 'localhost'
 POSTGRES_PORT: str = '5432'
 POSTGRES_DB: str = 'langchain'
 TABLE_NAME: str = 'vectorstore'
-OLLAMA_MODEL: str = 'llama3.2:3b'
-OLLAMA_BASE_URL: str = 'http://localhost:11434'
 CONNECTION_STRING: str = f'postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}'
+OLLAMA_MODEL_ID: str = 'llama3.2:3b'
+OLLAMA_BASE_URL: str = 'http://localhost:11434'
 S3_BUCKET: str = 'analysis'
 S3_ACCESS_KEY: str = 'admin'
 S3_SECRET_KEY: str = 'password'
@@ -34,14 +34,14 @@ MINIO_ENDPOINT: str = 'http://localhost:9000'
 
 pg_engine: PGEngine = PGEngine.from_connection_string(url=CONNECTION_STRING)
 async def get_vectorstore_async() -> VectorStore:
-    embeddings: Embeddings = OllamaEmbeddings(model=OLLAMA_MODEL, base_url=OLLAMA_BASE_URL)
+    embeddings: Embeddings = OllamaEmbeddings(model=OLLAMA_MODEL_ID, base_url=OLLAMA_BASE_URL)
     return await PGVectorStore.create(
         engine=pg_engine,
         table_name=TABLE_NAME,
-        embedding_service=embeddings,
+        embedding_service=embeddings
     )
 vector_store: VectorStore = asyncio.run(get_vectorstore_async())
-llm: BaseChatModel = init_chat_model(OLLAMA_MODEL, model_provider='ollama', base_url=OLLAMA_BASE_URL)
+llm: BaseChatModel = init_chat_model(OLLAMA_MODEL_ID, model_provider='ollama', base_url=OLLAMA_BASE_URL)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger: logging.Logger = logging.getLogger(__name__)
 s3_client = boto3.client(

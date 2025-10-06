@@ -20,7 +20,7 @@ S3_ACCESS_KEY: str = 'admin'
 S3_SECRET_KEY: str = 'password'
 MINIO_ENDPOINT: str = 'http://localhost:9000'
 DOCUMENTS: list[str] = [ 'output-1.json', 'output-2.json', 'output-3.json' ]
-OLLAMA_MODEL: str = 'llama3.2:3b'
+OLLAMA_MODEL_ID: str = 'llama3.2:3b'
 OLLAMA_BASE_URL: str = 'http://localhost:11434'
 
 CONNECTION_STRING: str = (
@@ -79,7 +79,7 @@ for document in docs:
 
 # 4. Setup PGVectorStore to load it with documents
 async def get_vector_store_async() -> VectorStore:
-    embeddings: Embeddings = OllamaEmbeddings(model=OLLAMA_MODEL, base_url=OLLAMA_BASE_URL)
+    embeddings: Embeddings = OllamaEmbeddings(model=OLLAMA_MODEL_ID, base_url=OLLAMA_BASE_URL)
     return await PGVectorStore.create(
         engine=pg_engine,
         table_name=TABLE_NAME,

@@ -13,7 +13,7 @@ from langgraph.graph.state import CompiledStateGraph
 from tavily import TavilyClient
 from typing import Any, TypedDict
 
-OLLAMA_MODEL: str = 'llama3.2:3b'
+OLLAMA_MODEL_ID: str = 'llama3.2:3b'
 OLLAMA_BASE_URL: str = 'http://localhost:11434'
 TAVILY_API_KEY: str = os.environ.get('TAVILY_API_KEY')
 S3_BUCKET: str = 'analysis'
@@ -22,7 +22,7 @@ S3_SECRET_KEY: str = 'password'
 MINIO_ENDPOINT: str = 'http://localhost:9000'
 
 client: TavilyClient = TavilyClient(TAVILY_API_KEY)
-llm: BaseChatModel = init_chat_model(OLLAMA_MODEL, model_provider='ollama', base_url=OLLAMA_BASE_URL)
+llm: BaseChatModel = init_chat_model(OLLAMA_MODEL_ID, model_provider='ollama', base_url=OLLAMA_BASE_URL)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger: logging.Logger = logging.getLogger(__name__)
 s3_client = boto3.client(

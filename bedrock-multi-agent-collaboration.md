@@ -167,6 +167,13 @@ References for the multi-agent collaboration feature in Amazon Bedrock are inclu
 To simulate multi-agent collaboration locally, the following resources appear to be relevant
 * [LangGraph > Examples > Agent Supervisor](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/)
   * [GitHub > langchain-ai/langgraph > Tutorials > Multi-agent supervisor](https://github.com/langchain-ai/langgraph/blob/main/docs/docs/tutorials/multi_agent/agent_supervisor.md) - Source code for above
-* [LangGraph > Get started > General concepts > Workflows and Agents](https://langchain-ai.github.io/langgraph/tutorials/workflows/)
 * [PyPI > langgraph-supervisor](https://pypi.org/project/langgraph-supervisor/) - Python module that may be required to implement this workflow
   * [langchain-ai/langgraph-supervisor-py](https://github.com/langchain-ai/langgraph-supervisor-py) - Source code for above
+* [LangGraph > Get started > General concepts > Workflows and Agents](https://langchain-ai.github.io/langgraph/tutorials/workflows/)
+
+Alternatively, [Agent2Agent (A2A) and Model Context Protocol (MCP)](https://a2a-protocol.org/dev/topics/a2a-and-mcp/) are other avenues of research to accomplish the coordination needed.
+
+The first script, [supervisor_agent.py](supervisor_agent.py) represents using the `langgraph-supervisor` to wire together the orchestration based on [worker agents](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/#1-create-worker-agents) and [supervisor agent](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/#2-create-supervisor-with-langgraph-supervisor). **Note:** It has a dependency on [TAVILY_API_KEY](#tavily) being defined as environment variable to work.
+```bash
+python supervisor_agent.py
+```
