@@ -13,9 +13,8 @@ from langgraph.constants import END
 from langgraph.graph.state import CompiledStateGraph
 from langgraph.prebuilt import InjectedState, create_react_agent
 from langgraph.graph import StateGraph, START, MessagesState
-from langgraph.types import Command
+from langgraph.types import Command, Send
 from typing import Annotated
-
 from supervisor_agent import pretty_print_messages
 
 # START of duplicate code from supervisor_agent.py
@@ -108,6 +107,30 @@ def create_handoff_tool(*, agent_name: str, description: str | None = None):
         )
     return handoff_tool
 
+# variant of create_handoff_tool to "formulate a task explicitly"
+def create_task_description_handoff_tool(*, agent_name: str, description: str | None = None):
+    name = f'transfer_to_{agent_name}'
+    description = description or f'Ask {agent_name} for help.'
+
+    @tool(name, description=description)
+    def handoff_tool(
+        # this is populated by the supervisor LLM
+        task_description: Annotated[
+            str,
+            'Description of what the next agent should do, including all of the relevant context.',
+        ],
+        # these parameters are ignored by the LLM
+        state: Annotated[MessagesState, InjectedState],
+    ) -> Command:
+        task_description_message = {'role': 'user', 'content': task_description}
+        agent_input = {**state, 'messages': [task_description_message]}
+        return Command(
+            goto=[Send(agent_name, agent_input)],
+            graph=Command.PARENT,
+        )
+
+    return handoff_tool
+
 # Handoffs
 assign_to_product_insight_agent: BaseTool = create_handoff_tool(
     agent_name='product_insight_agent',
@@ -117,10 +140,20 @@ assign_to_market_analysis_agent: BaseTool = create_handoff_tool(
     agent_name='market_analysis_agent',
     description='Assign task to a market analysis agent.',
 )
+# Variant Handoffs
+assign_to_product_insight_agent_with_description: BaseTool = create_task_description_handoff_tool(
+    agent_name='product_insight_agent',
+    description='Assign task to a product insight agent.',
+)
+assign_to_market_analysis_agent_with_description: BaseTool = create_task_description_handoff_tool(
+    agent_name='market_analysis_agent',
+    description='Assign task to a market analysis agent.',
+)
 
 supervisor_agent: CompiledStateGraph = create_react_agent(
     model=ollama_model,
-    tools=[assign_to_product_insight_agent, assign_to_market_analysis_agent],
+    # tools=[assign_to_product_insight_agent, assign_to_market_analysis_agent],
+    tools=[assign_to_product_insight_agent_with_description, assign_to_market_analysis_agent_with_description],
     prompt='''
     You are a supervisor agent managing two agents:
     - a product insight agent. Assign research-related tasks about products, specifically automotive vehicles to this agent
@@ -141,6 +174,7 @@ supervisor = (
         .add_edge('market_analysis_agent', 'supervisor_agent')
         .compile()
 )
+
 
 for chunk in supervisor.stream({"messages": [{"role": "user", "content": "market size and growth trends for the specific product/industry in the target market for Tesla Cybertruck"}]}):
     pretty_print_messages(chunk, last_message=True)

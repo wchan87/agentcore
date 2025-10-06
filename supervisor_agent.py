@@ -68,12 +68,16 @@ def pretty_print_messages(update, last_message=False):
         print(update_label)
         print("\n")
 
-        messages = convert_to_messages(node_update["messages"])
-        if last_message:
-            messages = messages[-1:]
+        # this change is needed with Step 4 due to node_update being None after transfer back to supervisor
+        if node_update:
+            messages = convert_to_messages(node_update["messages"])
+            if last_message:
+                messages = messages[-1:]
 
-        for m in messages:
-            pretty_print_message(m, indent=is_subgraph)
+            for m in messages:
+                pretty_print_message(m, indent=is_subgraph)
+        else:
+            print("node_update was set to None due to delegation task")
         print("\n")
 # END of code snippet for debugging
 
