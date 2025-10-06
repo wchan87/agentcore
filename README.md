@@ -3,6 +3,7 @@
 * AWS Workshops Reviewed
   * [Diving Deep into Bedrock AgentCore](diving-deep-into-bedrock-agentcore.md)
   * [Amazon Bedrock Multi-Agent Collaboration](bedrock-multi-agent-collaboration.md)
+    * [Amazon Bedrock multi-agent collaboration](https://catalog.us-east-1.prod.workshops.aws/workshops/1031afa5-be84-4a6a-9886-4e19ce67b9c2/en-US) - A variant which was recently discovered along with some sample code, [aws-samples/bedrock-multi-agents-collaboration-workshop](https://github.com/aws-samples/bedrock-multi-agents-collaboration-workshop)
 * Other AWS Workshops
   * [Amazon Bedrock AgentCore Workshop: From Basics to Advanced Agent Development](https://catalog.us-east-1.prod.workshops.aws/workshops/abd92795-9a36-4e63-a115-ad04f483248c/en-US) - A deeper dive into the AgentCore Runtime
 

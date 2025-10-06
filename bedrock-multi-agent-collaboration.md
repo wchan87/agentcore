@@ -130,7 +130,7 @@ from langchain_core.prompts import ChatPromptTemplate
 prompt: ChatPromptTemplate = hub.pull('rlm/rag-prompt')
 ```
 
-## Lab 2
+## Lab 2 - Market Analyst Agent
 
 [Lab 2: Market Analyst Agent](https://catalog.us-east-1.prod.workshops.aws/workshops/c68a2fb4-8b25-480f-ab0b-129778f96d4d/en-US/40-hands-on-lab/lab2-market-agent) involves an agent to interact with external tools (i.e., APIs) and summarized into a report back into S3 bucket based on the steps below:
 1. Extract the core product/trend specified the question
@@ -144,3 +144,29 @@ Ensure that `TAVILY_API_KEY` is [set](#tavily) before running the [market_analys
 ```bash
 python market_analysis_agent.py
 ```
+
+## Lab 3 - Reporter Agent
+
+[Lab 3: Reporter Agent](https://catalog.us-east-1.prod.workshops.aws/workshops/c68a2fb4-8b25-480f-ab0b-129778f96d4d/en-US/40-hands-on-lab/lab3-reporter-agent) doesn't have enough context to enable implementation aside from it combining the results in S3 from prior two agents and generating a comprehensive report.
+
+## Lab 4 - Supervisor Agent
+
+[Lab 4: Multi-Agent Collaboration Setup](https://catalog.us-east-1.prod.workshops.aws/workshops/c68a2fb4-8b25-480f-ab0b-129778f96d4d/en-US/40-hands-on-lab/lab5-mac) involves a supervisor agent that interacts with the previous agents to orchestrate the following workflow:
+1. In parallel, execute the [product insight agent](#lab-1---product-insight-agent) and [market analysis agent](#lab-2---market-analyst-agent) to generate reports
+2. Wait for both agents to complete and verify the reports are generated
+3. Dispatch the [reporter agent](#lab-3---reporter-agent) to aggregate the reports and generate HTML to address the question from the user
+4. Return final HTML report to the user
+
+The documentation on the workshop isn't particularly complete regarding the reporter and supervisor agents but the variant workshop, [Amazon Bedrock multi-agent collaboration](https://catalog.us-east-1.prod.workshops.aws/workshops/1031afa5-be84-4a6a-9886-4e19ce67b9c2/en-US) may be worth checking as it has sample code, [aws-samples/bedrock-multi-agents-collaboration-workshop](https://github.com/aws-samples/bedrock-multi-agents-collaboration-workshop) that is accessible.
+
+References for the multi-agent collaboration feature in Amazon Bedrock are included for completeness but would be difficult to simulate locally:
+* [AWS Blogs > Introducing multi-agent collaboration capability for Amazon Bedrock (preview)](https://aws.amazon.com/blogs/aws/introducing-multi-agent-collaboration-capability-for-amazon-bedrock/) - Released 2024-12-03
+* [AWS Blogs > Amazon Bedrock announces general availability of multi-agent collaboration](https://aws.amazon.com/blogs/machine-learning/amazon-bedrock-announces-general-availability-of-multi-agent-collaboration/) - Released 2025-03-10
+* [AWS > Documentation > Amazon Bedrock > User Guide > Use multi-agent collaboration with Amazon Bedrock Agents](https://docs.aws.amazon.com/bedrock/latest/userguide/agents-multi-agent-collaboration.html) - Possible counterpart to the workshop sample code if this feature is needed
+
+To simulate multi-agent collaboration locally, the following resources appear to be relevant
+* [LangGraph > Examples > Agent Supervisor](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/)
+  * [GitHub > langchain-ai/langgraph > Tutorials > Multi-agent supervisor](https://github.com/langchain-ai/langgraph/blob/main/docs/docs/tutorials/multi_agent/agent_supervisor.md) - Source code for above
+* [LangGraph > Get started > General concepts > Workflows and Agents](https://langchain-ai.github.io/langgraph/tutorials/workflows/)
+* [PyPI > langgraph-supervisor](https://pypi.org/project/langgraph-supervisor/) - Python module that may be required to implement this workflow
+  * [langchain-ai/langgraph-supervisor-py](https://github.com/langchain-ai/langgraph-supervisor-py) - Source code for above
