@@ -173,7 +173,13 @@ To simulate multi-agent collaboration locally, the following resources appear to
 
 Alternatively, [Agent2Agent (A2A) and Model Context Protocol (MCP)](https://a2a-protocol.org/dev/topics/a2a-and-mcp/) are other avenues of research to accomplish the coordination needed.
 
-The first script, [supervisor_agent.py](supervisor_agent.py) represents using the `langgraph-supervisor` to wire together the orchestration based on [worker agents](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/#1-create-worker-agents) and [supervisor agent](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/#2-create-supervisor-with-langgraph-supervisor). **Note:** It has a dependency on [TAVILY_API_KEY](#tavily) being defined as environment variable to work.
+The first script, [supervisor_agent.py](supervisor_agent.py) represents using the `langgraph-supervisor` to wire together the orchestration based on [step 2 (worker agents) of tutorial](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/#1-create-worker-agents) and [step 3 (supervisor agent) of tutorial](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/#2-create-supervisor-with-langgraph-supervisor).
 ```bash
 python supervisor_agent.py
+```
+**Note:** It has a dependency on [TAVILY_API_KEY](#tavily) being defined as environment variable to work.
+
+The second script, [supervisor_agent_from_scratch.py](supervisor_agent_from_scratch.py) is based [step 3 of tutorial](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/#3-create-supervisor-from-scratch) and [step 4 of tutorial](https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor/#4-create-delegation-tasks). Task 4 is effectively delegating and having the supervisor formulate the task since by default the agent has access to the full message history to determine what they need to do (which may lead to hallucinations).
+```bash
+python supervisor_agent_from_scratch.py
 ```

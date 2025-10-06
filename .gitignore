@@ -2,3 +2,4 @@
 .idea/
 temp/*
 !temp/.gitkeep
+__pycache__/

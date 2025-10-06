@@ -4,17 +4,21 @@ from langchain_community.embeddings import OllamaEmbeddings
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 from langchain_core.language_models import BaseChatModel
-from langchain_core.messages import convert_to_messages
-from langchain_core.tools import tool
+from langchain_core.tools import tool, InjectedToolCallId, BaseTool
 from langchain_core.vectorstores import VectorStore
+from langchain_ollama import ChatOllama
 from langchain_postgres import PGEngine, PGVectorStore
 from langchain_tavily import TavilySearch
+from langgraph.constants import END
 from langgraph.graph.state import CompiledStateGraph
-from langgraph.prebuilt import create_react_agent
-from langchain_ollama.chat_models import ChatOllama
-from langgraph_supervisor import create_supervisor
+from langgraph.prebuilt import InjectedState, create_react_agent
+from langgraph.graph import StateGraph, START, MessagesState
+from langgraph.types import Command
 from typing import Annotated
 
+from supervisor_agent import pretty_print_messages
+
+# START of duplicate code from supervisor_agent.py
 POSTGRES_USER: str = 'langchain'
 POSTGRES_PASSWORD: str = 'langchain'
 POSTGRES_HOST: str = 'localhost'
@@ -36,46 +40,6 @@ vector_store: VectorStore = PGVectorStore.create_sync(
 ollama_model: BaseChatModel = ChatOllama(model=OLLAMA_MODEL_ID, base_url=OLLAMA_BASE_URL)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger: logging.Logger = logging.getLogger(__name__)
-
-# START of code snippet for debugging copied from https://langchain-ai.github.io/langgraph/tutorials/multi_agent/agent_supervisor
-def pretty_print_message(message, indent=False):
-    pretty_message = message.pretty_repr(html=True)
-    if not indent:
-        print(pretty_message)
-        return
-
-    indented = "\n".join("\t" + c for c in pretty_message.split("\n"))
-    print(indented)
-
-def pretty_print_messages(update, last_message=False):
-    is_subgraph = False
-    if isinstance(update, tuple):
-        ns, update = update
-        # skip parent graph updates in the printouts
-        if len(ns) == 0:
-            return
-
-        graph_id = ns[-1].split(":")[0]
-        print(f"Update from subgraph {graph_id}:")
-        print("\n")
-        is_subgraph = True
-
-    for node_name, node_update in update.items():
-        update_label = f"Update from node {node_name}:"
-        if is_subgraph:
-            update_label = "\t" + update_label
-
-        print(update_label)
-        print("\n")
-
-        messages = convert_to_messages(node_update["messages"])
-        if last_message:
-            messages = messages[-1:]
-
-        for m in messages:
-            pretty_print_message(m, indent=is_subgraph)
-        print("\n")
-# END of code snippet for debugging
 
 @tool
 def retrieve_docs_from_vector_store(query: Annotated[str, 'The query for similarity search of vector store']) \
@@ -120,13 +84,43 @@ market_analysis_agent: CompiledStateGraph = create_react_agent(
     ''',
     name='market_analysis_agent'
 )
+# END of duplicate code from supervisor_agent.py
 
-# for chunk in product_insight_agent.stream({"messages": [{"role": "user", "content": "market size and growth trends for the specific product/industry in the target market for Tesla Cybertruck"}]}):
-#     pretty_print_messages(chunk)
+def create_handoff_tool(*, agent_name: str, description: str | None = None):
+    name = f'transfer_to_{agent_name}'
+    description = description or f'Ask {agent_name} for help.'
 
-supervisor: CompiledStateGraph = create_supervisor(
+    @tool(name, description=description)
+    def handoff_tool(
+        state: Annotated[MessagesState, InjectedState],
+        tool_call_id: Annotated[str, InjectedToolCallId],
+    ) -> Command:
+        tool_message = {
+            'role': 'tool',
+            'content': f'Successfully transferred to {agent_name}',
+            'name': name,
+            'tool_call_id': tool_call_id,
+        }
+        return Command(
+            goto=agent_name,
+            update={**state, 'messages': state['messages'] + [tool_message]},
+            graph=Command.PARENT,
+        )
+    return handoff_tool
+
+# Handoffs
+assign_to_product_insight_agent: BaseTool = create_handoff_tool(
+    agent_name='product_insight_agent',
+    description='Assign task to a product insight agent.',
+)
+assign_to_market_analysis_agent: BaseTool = create_handoff_tool(
+    agent_name='market_analysis_agent',
+    description='Assign task to a market analysis agent.',
+)
+
+supervisor_agent: CompiledStateGraph = create_react_agent(
     model=ollama_model,
-    agents=[product_insight_agent, market_analysis_agent],
+    tools=[assign_to_product_insight_agent, assign_to_market_analysis_agent],
     prompt='''
     You are a supervisor agent managing two agents:
     - a product insight agent. Assign research-related tasks about products, specifically automotive vehicles to this agent
@@ -134,9 +128,19 @@ supervisor: CompiledStateGraph = create_supervisor(
     Assign work to one agent at a time, do not call agents in parallel.
     Do not do any work yourself.
     ''',
-    add_handoff_back_messages=True,
-    output_mode='full_history',
-).compile()
+    name='supervisor_agent'
+)
+
+supervisor = (
+    StateGraph(MessagesState)
+        .add_node(supervisor_agent, destinations=('product_insight_agent', 'market_analysis_agent', END))
+        .add_node(product_insight_agent)
+        .add_node(market_analysis_agent)
+        .add_edge(START, 'supervisor_agent')
+        .add_edge('product_insight_agent', 'supervisor_agent')
+        .add_edge('market_analysis_agent', 'supervisor_agent')
+        .compile()
+)
 
 for chunk in supervisor.stream({"messages": [{"role": "user", "content": "market size and growth trends for the specific product/industry in the target market for Tesla Cybertruck"}]}):
     pretty_print_messages(chunk, last_message=True)
