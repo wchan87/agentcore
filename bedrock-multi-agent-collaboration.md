@@ -183,3 +183,39 @@ The second script, [supervisor_agent_from_scratch.py](supervisor_agent_from_scra
 ```bash
 python supervisor_agent_from_scratch.py
 ```
+
+### Workflows and Agents
+
+[Workflows and agents](https://langchain-ai.github.io/langgraph/tutorials/workflows/) are the means through which "simple, composable patterns" are used to shape and combine with tradeoffs between latency, cost and task performance. The  difference between workflows and agents is explained by [Anthropic's Building Effective Agents](https://www.anthropic.com/engineering/building-effective-agents
+> Workflows are systems where LLMs and tools are orchestrated through predefined code paths. Agents, on the other hand, are systems where LLMs dynamically direct their own processes and tool usage, maintaining control over how they accomplish tasks.
+
+The patterns referenced in the LangGraph tutorial are
+* [Augmenting the LLM](https://langchain-ai.github.io/langgraph/tutorials/workflows/#building-blocks-the-augmented-llm)
+  * Use [structured output](https://python.langchain.com/docs/concepts/structured_outputs/) to instruct the model to respond in a specific output schema
+  * Use [tools](https://python.langchain.com/docs/concepts/tools/) which encapsulate function calls that the model may leverage through cues provided by name, description and function arguments (along with annotations on the arguments themselves)
+* Workflows
+  * [Prompt chaining](https://langchain-ai.github.io/langgraph/tutorials/workflows/#prompt-chaining) allows for an LLM call to leverage the output of the previous LLM call (via the [graph state](https://langchain-ai.github.io/langgraph/concepts/low_level/?h=state#schema) in LangChain)
+  * [Parallelization](https://langchain-ai.github.io/langgraph/concepts/low_level/?h=state#schema)
+  * [Routing](https://langchain-ai.github.io/langgraph/tutorials/workflows/#routing)
+  * [Orchestrator-worker](https://langchain-ai.github.io/langgraph/tutorials/workflows/#orchestrator-worker)
+  * [Evaluator-optimizer](https://langchain-ai.github.io/langgraph/tutorials/workflows/#evaluator-optimizer)
+* [Agents](https://langchain-ai.github.io/langgraph/tutorials/workflows/#agent)
+  * [Pre-built agents](https://langchain-ai.github.io/langgraph/tutorials/workflows/#pre-built)
+
+### Agent Architectures
+
+[Agent architectures](https://langchain-ai.github.io/langgraph/concepts/agentic_concepts/) covers various [architectures](https://blog.langchain.com/what-is-a-cognitive-architecture/) that expand what level of autonomy is provided to the agent.
+
+* Agent
+  * [Tool calling](https://langchain-ai.github.io/langgraph/concepts/tools/#tool-calling)
+  * [Memory](https://langchain-ai.github.io/langgraph/concepts/agentic_concepts/#memory)
+  * Planning
+    * [LangGraph > Tutorials > Plan and Execute > Planning Step](https://langchain-ai.github.io/langgraph/tutorials/plan-and-execute/plan-and-execute/#planning-step) 
+    * [LangGraph > Tutorials > Reasoning without Observation > Planner](https://langchain-ai.github.io/langgraph/tutorials/rewoo/rewoo/#planner)
+* [Custom agent architectures](https://langchain-ai.github.io/langgraph/concepts/agentic_concepts/#custom-agent-architectures)
+  * [Human in the loop](https://langchain-ai.github.io/langgraph/concepts/human_in_the_loop/)
+  * [Parallelization](https://langchain-ai.github.io/langgraph/how-tos/graph-api/#map-reduce-and-the-send-api)
+  * [Subgraphs](https://langchain-ai.github.io/langgraph/how-tos/subgraph/)
+  * Reflection or "flow engineering" as per [YouTube > Building a self-corrective coding assistant from scratch](https://www.youtube.com/watch?v=MvNdgmM7uyc)
+    * [GitHub > Code generation with RAG and self-correction](https://github.com/langchain-ai/langgraph/blob/main/docs/docs/tutorials/code_assistant/langgraph_code_assistant.ipynb)
+    * [Arxiv > Code Generation with AlphaCodium: From Prompt Engineering to Flow Engineering](https://arxiv.org/pdf/2401.08500)
