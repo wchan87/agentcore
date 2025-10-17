@@ -48,6 +48,41 @@
         docker exec -it ollama ollama run gemma3:4b
         docker exec -it ollama ollama run llama3.2:3b
         ```
+* Use [Docker Desktop Model Runner](https://docs.docker.com/ai/model-runner/) (see [blog post for more details](https://www.docker.com/blog/run-llms-locally/))
+  * Enable Model Runner
+      ```bash
+      docker desktop enable model-runner --cors all --gpu enable --tcp=12434
+      ```
+  * Pull a model
+      ```bash
+      docker model pull ai/gpt-oss:latest
+      ```
+  * Run a model
+    * Run a model via CLI
+      ```bash
+      docker model run ai/gpt-oss:latest "Explain Docker in one sentence"
+      ```
+    * Run a model with frameworks. Model Runner has Open AI compatible endpoints
+      * Base URL 
+        * `http://localhost:12434/engines/v1` (if from the host)
+        * `http://model-runner.docker.internal/engines/v1` (if from another Docker container itself)
+      * API Key - any placeholder like "docker" works
+      * Model - image name which you pulled the image as (ex: `ai/gpt-oss:latest`)
+    * Frameworks
+      * [LangChain > Components > Chat models > OpenAI](https://python.langchain.com/docs/integrations/chat/openai/)
+        ```bash
+        pip install -qU langchain-openai
+        ```
+        ```bash
+        python -c 'from langchain_openai import ChatOpenAI; llm = ChatOpenAI(model="ai/gpt-oss:latest", api_key="docker", base_url="http://localhost:12434/engines/v1"); messages = [("system", "You are a helpful AI assistant"), ("human", "Explain Docker in one sentence")]; ai_msg = llm.invoke(messages); print(ai_msg.content)'
+        ```
+      * [Strands Agents > User Guide > Model Providers > OpenAI](https://strandsagents.com/latest/documentation/docs/user-guide/concepts/model-providers/openai/)
+         ```bash
+         pip install -qU 'strands-agents[openai]'
+         ```
+         ```bash
+         python -c 'from strands import Agent; from strands.models.openai import OpenAIModel; model = OpenAIModel(client_args={"api_key":"docker", "base_url":"http://localhost:12434/engines/v1"}, model_id="ai/gpt-oss:latest"); agent = Agent(model=model); response = agent("Explain Docker in one sentence"); print(response)'
+         ```
 
 ## Frameworks
 
