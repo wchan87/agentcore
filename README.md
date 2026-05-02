@@ -49,9 +49,13 @@
         docker exec -it ollama ollama run llama3.2:3b
         ```
 * Use [Docker Desktop Model Runner](https://docs.docker.com/ai/model-runner/) (see [blog post for more details](https://www.docker.com/blog/run-llms-locally/))
-  * Enable Model Runner
+  * Enable Model Runner (see the [manual setup from Docker Desktop for Windows](https://docs.docker.com/ai/model-runner/get-started/#enable-docker-model-runner-in-docker-desktop))
       ```bash
-      docker desktop enable model-runner --cors all --gpu enable --tcp=12434
+      docker desktop enable model-runner --cors all --gpu enable
+      ```
+    * `--tcp=12434` should be an additional argument but after recent upgrade to `v4.71.0`, the following error is returned (which shouldn't matter because `12434` is the default port)
+      ```bash
+      failed to update settings: settings format not recognized, unknown settings keys: [enableInferenceTCP]
       ```
   * Pull a model
       ```bash
@@ -62,7 +66,7 @@
       ```bash
       docker model run ai/gpt-oss:latest "Explain Docker in one sentence"
       ```
-    * Run a model with frameworks. Model Runner has Open AI compatible endpoints
+    * Run a model with frameworks. Model Runner has OpenAI compatible endpoints
       * Base URL 
         * `http://localhost:12434/engines/v1` (if from the host)
         * `http://model-runner.docker.internal/engines/v1` (if from another Docker container itself)
